@@ -4,19 +4,23 @@
 <div class="container mx-auto px-4">
     <div class="max-w-3xl mx-auto">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold">Record Absence for {{ $student->name }}</h1>
-            <a href="{{ route('absences.create') }}?class_id={{ $student->class_id }}" class="text-indigo-600 hover:text-indigo-900">Back</a>
+            <h1 class="text-3xl font-bold">Quick Record Absence</h1>
+            <a href="{{ route('absences.index') }}" class="text-indigo-600 hover:text-indigo-900">Back to Absences</a>
         </div>
 
         <div class="bg-white shadow-md rounded-lg p-6">
-            <div class="mb-4">
-                <div class="text-gray-600">Student:</div>
-                <div class="font-medium">{{ $student->name }}</div>
-            </div>
-
-            <div class="mb-4">
-                <div class="text-gray-600">Class:</div>
-                <div class="font-medium">{{ $student->class->name }}</div>
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-2">Student Information</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-gray-600">Name:</span>
+                        <span class="ml-2 font-medium">{{ $student->full_name }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Class:</span>
+                        <span class="ml-2 font-medium">{{ $student->class->name }}</span>
+                    </div>
+                </div>
             </div>
 
             <form action="{{ route('absences.store') }}" method="POST">
@@ -46,19 +50,21 @@
 
                 <div class="mb-4">
                     <label for="period" class="block text-sm font-medium text-gray-700 mb-2">Period</label>
-                    <select name="period" id="period" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="">Select a period</option>
-                        <option value="morning" {{ old('period') == 'morning' ? 'selected' : '' }}>Morning</option>
-                        <option value="afternoon" {{ old('period') == 'afternoon' ? 'selected' : '' }}>Afternoon</option>
-                        <option value="full_day" {{ old('period') == 'full_day' ? 'selected' : '' }}>Full Day</option>
+                    <select name="period" id="period"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        onchange="updateHours()">
+                        <option value="">Select period (optional)</option>
+                        <option value="morning">Morning (4 hours)</option>
+                        <option value="afternoon">Afternoon (4 hours)</option>
+                        <option value="full_day">Full Day (8 hours)</option>
                     </select>
                 </div>
 
                 <div class="mb-4">
                     <label for="hours_absent" class="block text-sm font-medium text-gray-700 mb-2">Hours Absent</label>
-                    <input type="number" name="hours_absent" id="hours_absent" required min="1"
+                    <input type="number" name="hours_absent" id="hours_absent" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        min="0.5" max="8" step="0.5"
                         value="{{ old('hours_absent', 1) }}">
                 </div>
 
@@ -74,26 +80,22 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const periodSelect = document.getElementById('period');
-    const hoursAbsentInput = document.getElementById('hours_absent');
-
-    periodSelect.addEventListener('change', function() {
-        switch(this.value) {
-            case 'morning':
-                hoursAbsentInput.value = '4';
-                break;
-            case 'afternoon':
-                hoursAbsentInput.value = '4';
-                break;
-            case 'full_day':
-                hoursAbsentInput.value = '8';
-                break;
-            default:
-                hoursAbsentInput.value = '1';
-        }
-    });
-});
+function updateHours() {
+    const period = document.getElementById('period').value;
+    const hoursInput = document.getElementById('hours_absent');
+    
+    switch(period) {
+        case 'morning':
+        case 'afternoon':
+            hoursInput.value = '4';
+            break;
+        case 'full_day':
+            hoursInput.value = '8';
+            break;
+        default:
+            hoursInput.value = '1';
+    }
+}
 </script>
 @endpush
 @endsection 

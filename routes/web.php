@@ -28,7 +28,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('students/{student}/analytics', [StudentController::class, 'analytics'])->name('students.analytics');
     
     // Absences Routes
-    Route::resource('absences', AbsenceController::class);
-    Route::get('get-students', [AbsenceController::class, 'getStudents'])->name('get.students');
-    Route::get('absences/quick-record/{student}', [AbsenceController::class, 'quickRecord'])->name('absences.quick-record');
+    Route::get('/get-students', [AbsenceController::class, 'getStudents'])->name('get.students');
+    Route::resource('absences', AbsenceController::class)->except(['create', 'store', 'show']);
+    Route::get('/absences/bulk-create', [AbsenceController::class, 'bulkCreate'])->name('absences.bulk-create');
+    Route::post('/absences/store-bulk', [AbsenceController::class, 'storeBulk'])->name('absences.store-bulk');
+    Route::get('/absences/get-class-data', [AbsenceController::class, 'getClassData'])->name('absences.get-class-data');
 });

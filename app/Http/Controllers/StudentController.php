@@ -6,13 +6,52 @@ use App\Models\Student;
 use App\Models\ClassRoom;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class StudentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $students = Student::with('class')->get();
-        return view('students.index', compact('students'));
+        // Cache the classes list for 24 hours
+        $classes = Cache::remember('classes_list', 60 * 60 * 24, function () {
+            return ClassRoom::orderBy('name')->get();
+        });
+
+        $query = Student::query()->with('class');
+
+        // Search by name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by class
+        if ($request->filled('class_id')) {
+            $query->where('class_id', $request->class_id);
+        }
+
+        // Sort
+        $sortField = $request->get('sort', 'last_name');
+        $sortDirection = $request->get('direction', 'asc');
+        
+        if ($sortField === 'first_name') {
+            $query->orderBy('first_name', $sortDirection)
+                  ->orderBy('last_name', 'asc');
+        } else {
+            $query->orderBy('last_name', $sortDirection)
+                  ->orderBy('first_name', 'asc');
+        }
+
+        // Cache the paginated results for 5 minutes with a unique key based on the query parameters
+        $cacheKey = 'students_' . md5(json_encode($request->all()));
+        $students = Cache::remember($cacheKey, 60 * 5, function () use ($query) {
+            return $query->paginate(15)->withQueryString();
+        });
+
+        return view('students.index', compact('students', 'classes'));
     }
 
     public function create()
@@ -24,11 +63,14 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'class_id' => 'required|exists:classes,id'
         ]);
 
-        Student::create($validated);
+        $student = Student::create($validated);
+        Cache::forget('classes_list');
+        $this->clearStudentCache($student);
 
         return redirect()->route('students.index')
             ->with('success', 'Student created successfully.');
@@ -36,19 +78,27 @@ class StudentController extends Controller
 
     public function show(Student $student)
     {
-        $student->load(['class', 'absences.subject']);
+        // Cache individual student data with their absences for 30 minutes
+        $cacheKey = 'student_' . $student->id;
+        $studentData = Cache::remember($cacheKey, 60 * 30, function () use ($student) {
+            $student->load(['class']);
+            $absences = $student->absences()
+                ->orderBy('date', 'desc')
+                ->get()
+                ->unique(function ($absence) {
+                    return $absence->date->format('Y-m-d') . '-' . $absence->period;
+                });
+            
+            $totalHours = $absences->sum('hours_absent');
+            
+            return [
+                'student' => $student,
+                'absences' => $absences,
+                'totalHours' => $totalHours
+            ];
+        });
         
-        // Calculate total absence hours
-        $totalHours = $student->absences->sum('hours_absent');
-        
-        // Get absence statistics by subject
-        $absencesBySubject = $student->absences()
-            ->select('subjects.name', DB::raw('SUM(hours_absent) as total_hours'))
-            ->join('subjects', 'absences.subject_id', '=', 'subjects.id')
-            ->groupBy('subjects.id', 'subjects.name')
-            ->get();
-
-        return view('students.show', compact('student', 'totalHours', 'absencesBySubject'));
+        return view('students.show', $studentData);
     }
 
     public function edit(Student $student)
@@ -60,11 +110,13 @@ class StudentController extends Controller
     public function update(Request $request, Student $student)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'class_id' => 'required|exists:classes,id'
         ]);
 
         $student->update($validated);
+        $this->clearStudentCache($student);
 
         return redirect()->route('students.index')
             ->with('success', 'Student updated successfully.');
@@ -72,7 +124,9 @@ class StudentController extends Controller
 
     public function destroy(Student $student)
     {
+        $this->clearStudentCache($student);
         $student->delete();
+        Cache::forget('classes_list');
 
         return redirect()->route('students.index')
             ->with('success', 'Student deleted successfully.');
@@ -80,27 +134,33 @@ class StudentController extends Controller
 
     public function analytics(Student $student)
     {
-        $absences = $student->absences()
-            ->select(
-                'subjects.name as subject_name',
-                DB::raw('SUM(hours_absent) as total_hours'),
-                DB::raw('COUNT(*) as absence_count')
-            )
-            ->join('subjects', 'absences.subject_id', '=', 'subjects.id')
-            ->groupBy('subjects.id', 'subjects.name')
-            ->get();
+        // Cache analytics data for 1 hour
+        $cacheKey = 'student_analytics_' . $student->id;
+        $analyticsData = Cache::remember($cacheKey, 60 * 60, function () use ($student) {
+            return $student->absences()
+                ->select(
+                    'absences.*',
+                    DB::raw('MONTH(date) as month'),
+                    DB::raw('YEAR(date) as year')
+                )
+                ->orderBy('date')
+                ->get()
+                ->unique(function ($absence) {
+                    return $absence->date->format('Y-m-d') . '-' . $absence->period;
+                });
+        });
 
-        $monthlyAbsences = $student->absences()
-            ->select(
-                DB::raw('MONTH(date) as month'),
-                DB::raw('YEAR(date) as year'),
-                DB::raw('SUM(hours_absent) as total_hours')
-            )
-            ->groupBy('year', 'month')
-            ->orderBy('year', 'desc')
-            ->orderBy('month', 'desc')
-            ->get();
+        return view('students.analytics', [
+            'student' => $student,
+            'absences' => $analyticsData
+        ]);
+    }
 
-        return view('students.analytics', compact('student', 'absences', 'monthlyAbsences'));
+    // Add cache clearing methods for data updates
+    private function clearStudentCache($student)
+    {
+        Cache::forget('student_' . $student->id);
+        Cache::forget('student_analytics_' . $student->id);
+        Cache::tags(['students_list'])->flush();
     }
 }

@@ -11,35 +11,18 @@ class Absence extends Model
 
     protected $fillable = [
         'student_id',
-        'class_id',
-        'subject_id',
-        'admin_id',
         'date',
         'period',
         'hours_absent'
     ];
 
     protected $casts = [
-        'date' => 'date'
+        'date' => 'date',
+        'hours_absent' => 'decimal:1'
     ];
 
     public function student()
     {
         return $this->belongsTo(Student::class);
-    }
-
-    public function class()
-    {
-        return $this->belongsTo(ClassRoom::class, 'class_id');
-    }
-
-    public function subject()
-    {
-        return $this->belongsTo(Subject::class);
-    }
-
-    public function admin()
-    {
-        return $this->belongsTo(User::class, 'admin_id');
     }
 }

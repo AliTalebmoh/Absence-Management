@@ -36,15 +36,15 @@
                     <h2 class="text-xl font-semibold">Recent Absences</h2>
                 </div>
                 <div class="space-y-2">
-                    @foreach($class->absences()->with(['student', 'subject'])->latest()->take(10)->get() as $absence)
-                    <div class="p-3 bg-gray-50 rounded">
+                    @foreach($class->absences()->with('student')->latest()->take(10)->get() as $absence)
+                    <div class="p-3 bg-gray-50 rounded-lg">
                         <div class="flex justify-between items-center">
                             <div>
-                                <span class="font-medium">{{ $absence->student->name }}</span>
-                                <span class="text-gray-500"> - {{ $absence->subject->name }}</span>
+                                <span class="font-medium">{{ $absence->student->full_name }}</span>
+                                <span class="text-gray-500 ml-2">{{ $absence->date->format('M d, Y') }}</span>
                             </div>
-                            <div class="text-sm text-gray-500">
-                                {{ $absence->date->format('M d, Y') }} ({{ $absence->hours_absent }} hours)
+                            <div class="text-gray-600">
+                                {{ ucfirst($absence->period) }} - {{ $absence->hours_absent }} hours
                             </div>
                         </div>
                     </div>

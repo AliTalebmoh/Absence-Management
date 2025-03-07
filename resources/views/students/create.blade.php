@@ -12,11 +12,19 @@
             <form action="{{ route('students.store') }}" method="POST">
                 @csrf
                 <div class="mb-4">
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Student Name</label>
-                    <input type="text" name="name" id="name" required
+                    <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                    <input type="text" name="first_name" id="first_name" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                        value="{{ old('name') }}"
-                        placeholder="Enter student name">
+                        value="{{ old('first_name') }}"
+                        placeholder="Enter first name">
+                </div>
+
+                <div class="mb-4">
+                    <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                    <input type="text" name="last_name" id="last_name" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        value="{{ old('last_name') }}"
+                        placeholder="Enter last name">
                 </div>
 
                 <div class="mb-4">
