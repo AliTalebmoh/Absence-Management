@@ -1,35 +1,43 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto px-4">
-    <h1 class="text-3xl font-bold mb-8">Dashboard</h1>
+<div class="space-y-6">
+    <div class="flex items-center justify-between space-y-2">
+        <h2 class="text-3xl font-bold tracking-tight">Dashboard</h2>
+    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="grid gap-4 md:grid-cols-2">
         <!-- Total Students Card -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-semibold mb-2">Total Students</h2>
-            <p class="text-3xl font-bold text-indigo-600">{{ $totalStudents }}</p>
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <div class="p-6 flex flex-col space-y-2">
+                <h3 class="font-semibold leading-none tracking-tight">Total Students</h3>
+                <p class="text-4xl font-bold text-primary">{{ $totalStudents }}</p>
+            </div>
         </div>
 
         <!-- Total Classes Card -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-semibold mb-2">Total Classes</h2>
-            <p class="text-3xl font-bold text-indigo-600">{{ $classes->count() }}</p>
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <div class="p-6 flex flex-col space-y-2">
+                <h3 class="font-semibold leading-none tracking-tight">Total Classes</h3>
+                <p class="text-4xl font-bold text-primary">{{ $classes->count() }}</p>
+            </div>
         </div>
     </div>
 
     <!-- Classes Overview -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-semibold mb-4">Classes Overview</h2>
-        <div class="space-y-4">
-            @foreach($classes as $class)
-            <div class="flex justify-between items-center">
-                <span class="font-medium">{{ $class->name }}</span>
-                <span class="bg-indigo-100 text-indigo-800 py-1 px-3 rounded-full text-sm">
-                    {{ $class->students_count }} students
-                </span>
+    <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div class="p-6 space-y-4">
+            <h3 class="font-semibold leading-none tracking-tight">Classes Overview</h3>
+            <div class="space-y-4">
+                @foreach($classes as $class)
+                <div class="flex items-center justify-between">
+                    <span class="font-medium">{{ $class->name }}</span>
+                    <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary/10 text-primary">
+                        {{ $class->students_count }} students
+                    </span>
+                </div>
+                @endforeach
             </div>
-            @endforeach
         </div>
     </div>
 </div>

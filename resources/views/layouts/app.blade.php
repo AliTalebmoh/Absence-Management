@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,79 +12,78 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100">
+<body class="min-h-screen bg-background font-sans antialiased">
+    <div class="relative flex min-h-screen flex-col">
         @auth
         <!-- Navigation -->
-        <nav class="bg-white border-b border-gray-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex">
-                        <!-- Logo -->
-                        <div class="flex-shrink-0 flex items-center">
-                            <a href="{{ route('dashboard') }}" class="text-xl font-bold text-indigo-600">
-                                {{ config('app.name', 'Absence Management') }}
-                            </a>
-                        </div>
+        <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div class="container flex h-14 items-center">
+                <div class="mr-4 flex">
+                    <a href="{{ route('dashboard') }}" class="mr-6 flex items-center space-x-2">
+                        <span class="font-bold">{{ config('app.name', 'Absence Management') }}</span>
+                    </a>
+                </div>
 
-                        <!-- Navigation Links -->
-                        <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                            <a href="{{ route('dashboard') }}" 
-                               class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('dashboard') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                                Dashboard
-                            </a>
-                            <a href="{{ route('students.index') }}"
-                               class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('students.*') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                                Students
-                            </a>
-                            <a href="{{ route('classes.index') }}"
-                               class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('classes.*') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                                Classes
-                            </a>
-                            <a href="{{ route('absences.index') }}"
-                               class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('absences.*') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                                Absences
-                            </a>
-                        </div>
-                    </div>
+                <!-- Navigation Links -->
+                <div class="flex gap-6">
+                    <a href="{{ route('dashboard') }}" 
+                       class="text-sm font-medium transition-colors hover:text-primary {{ request()->routeIs('dashboard') ? 'text-foreground' : 'text-foreground/60' }}">
+                        Dashboard
+                    </a>
+                    <a href="{{ route('students.index') }}"
+                       class="text-sm font-medium transition-colors hover:text-primary {{ request()->routeIs('students.*') ? 'text-foreground' : 'text-foreground/60' }}">
+                        Students
+                    </a>
+                    <a href="{{ route('classes.index') }}"
+                       class="text-sm font-medium transition-colors hover:text-primary {{ request()->routeIs('classes.*') ? 'text-foreground' : 'text-foreground/60' }}">
+                        Classes
+                    </a>
+                    <a href="{{ route('absences.index') }}"
+                       class="text-sm font-medium transition-colors hover:text-primary {{ request()->routeIs('absences.*') ? 'text-foreground' : 'text-foreground/60' }}">
+                        Absences
+                    </a>
+                </div>
 
-                    <!-- User Dropdown -->
-                    <div class="flex items-center">
+                <div class="flex flex-1 items-center justify-end space-x-4">
+                    <nav class="flex items-center space-x-2">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="text-gray-500 hover:text-gray-700">
+                            <button type="submit" 
+                                    class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
                                 Logout
                             </button>
                         </form>
-                    </div>
+                    </nav>
                 </div>
             </div>
-        </nav>
+        </header>
         @endauth
 
         <!-- Page Content -->
-        <main class="py-12">
-            @if(session('success'))
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                    <span class="block sm:inline">{{ session('success') }}</span>
+        <main class="flex-1">
+            <div class="container py-6">
+                @if(session('success'))
+                <div class="mb-6">
+                    <div class="rounded-lg border bg-green-50 p-4 text-sm text-green-600 dark:bg-green-500/10 dark:text-green-400 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:stroke-current">
+                        <span class="block sm:inline">{{ session('success') }}</span>
+                    </div>
                 </div>
-            </div>
-            @endif
+                @endif
 
-            @if($errors->any())
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <ul class="list-disc list-inside">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                @if($errors->any())
+                <div class="mb-6">
+                    <div class="rounded-lg border bg-destructive/10 p-4 text-sm text-destructive [&>svg]:h-5 [&>svg]:w-5 [&>svg]:stroke-current">
+                        <ul class="list-disc list-inside space-y-1">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
                 </div>
-            </div>
-            @endif
+                @endif
 
-            @yield('content')
+                @yield('content')
+            </div>
         </main>
     </div>
 
