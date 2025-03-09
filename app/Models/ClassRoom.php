@@ -17,9 +17,4 @@ class ClassRoom extends Model
     {
         return $this->hasMany(Student::class, 'class_id');
     }
-
-    public function absences()
-    {
-        return $this->hasMany(Absence::class, 'class_id');
-    }
 }

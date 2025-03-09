@@ -23,7 +23,7 @@
                 <div class="space-y-2">
                     @foreach($class->students as $student)
                     <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                        <span>{{ $student->name }}</span>
+                        <span>{{ $student->full_name }}</span>
                         <a href="{{ route('students.show', $student) }}" class="text-indigo-600 hover:text-indigo-900">View Details</a>
                     </div>
                     @endforeach
@@ -36,7 +36,14 @@
                     <h2 class="text-xl font-semibold">Recent Absences</h2>
                 </div>
                 <div class="space-y-2">
-                    @foreach($class->absences()->with('student')->latest()->take(10)->get() as $absence)
+                    @php
+                        $recentAbsences = collect();
+                        foreach($class->students as $student) {
+                            $recentAbsences = $recentAbsences->concat($student->absences);
+                        }
+                        $recentAbsences = $recentAbsences->sortByDesc('date')->take(10);
+                    @endphp
+                    @foreach($recentAbsences as $absence)
                     <div class="p-3 bg-gray-50 rounded-lg">
                         <div class="flex justify-between items-center">
                             <div>

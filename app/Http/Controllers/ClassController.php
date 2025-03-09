@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassRoom;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ClassController extends Controller
 {
@@ -32,7 +33,7 @@ class ClassController extends Controller
 
     public function show(ClassRoom $class)
     {
-        $class->load(['students', 'absences']);
+        $class->load('students');
         return view('classes.show', compact('class'));
     }
 
@@ -48,6 +49,22 @@ class ClassController extends Controller
         ]);
 
         $class->update($validated);
+
+        // Clear the classes list cache
+        Cache::forget('classes_list');
+        
+        // Clear student-related caches
+        foreach ($class->students as $student) {
+            Cache::forget('student_' . $student->id);
+            Cache::forget('student_analytics_' . $student->id);
+        }
+
+        // Clear any paginated student results
+        $cacheKeys = Cache::get('student_cache_keys', []);
+        foreach ($cacheKeys as $key) {
+            Cache::forget($key);
+        }
+        Cache::forget('student_cache_keys');
 
         return redirect()->route('classes.index')
             ->with('success', 'Class updated successfully.');
