@@ -13,7 +13,8 @@ class AbsenceController extends Controller
     public function index()
     {
         $absences = Absence::with('student')
-            ->latest('date')
+            ->orderBy('date', 'desc')
+            ->orderBy('period', 'desc')
             ->paginate(15);
         return view('absences.index', compact('absences'));
     }
@@ -27,8 +28,7 @@ class AbsenceController extends Controller
     public function bulkCreate()
     {
         $classes = ClassRoom::all();
-        $currentPeriod = $this->getCurrentPeriod();
-        return view('absences.bulk-create', compact('classes', 'currentPeriod'));
+        return view('absences.bulk-create', compact('classes'));
     }
 
     public function getStudents(Request $request)
@@ -46,8 +46,7 @@ class AbsenceController extends Controller
             });
         
         return response()->json([
-            'students' => $students,
-            'currentPeriod' => $this->getCurrentPeriod()
+            'students' => $students
         ]);
     }
 

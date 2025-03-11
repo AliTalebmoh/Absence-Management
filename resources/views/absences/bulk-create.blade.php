@@ -32,7 +32,8 @@
                 <div>
                     <label for="defaultPeriod" class="block text-base font-medium text-gray-700 mb-2">Period</label>
                     <select id="defaultPeriod" class="w-full px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="morning">Morning (4 hours)</option>
+                        <option value="">Select a period</option>
+                        <option value="morning">Morning (3 hours)</option>
                         <option value="afternoon">Afternoon (4 hours)</option>
                     </select>
                 </div>
@@ -50,6 +51,7 @@
                                             <span class="ml-2 text-xs sm:text-base font-medium text-gray-500 uppercase tracking-wider">Select All</span>
                                         </div>
                                     </th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-sm sm:text-lg font-medium text-gray-500 uppercase tracking-wider">No.</th>
                                     <th class="px-4 sm:px-6 py-3 text-left text-sm sm:text-lg font-medium text-gray-500 uppercase tracking-wider">First Name</th>
                                     <th class="px-4 sm:px-6 py-3 text-left text-sm sm:text-lg font-medium text-gray-500 uppercase tracking-wider">Last Name</th>
                                 </tr>
@@ -92,7 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 updateStudentList(data.students);
                 studentList.classList.remove('hidden');
-                defaultPeriod.value = data.currentPeriod;
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -104,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tbody = document.getElementById('studentTableBody');
         tbody.innerHTML = '';
 
-        students.forEach(student => {
+        students.forEach((student, index) => {
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-gray-50';
             tr.innerHTML = `
@@ -113,9 +114,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         <input type="checkbox" name="absences[${student.id}][student_id]" value="${student.id}"
                             class="student-checkbox w-6 h-6 sm:w-8 sm:h-8 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
                         <input type="hidden" name="absences[${student.id}][period]" value="${defaultPeriod.value}" class="period-input">
-                        <input type="hidden" name="absences[${student.id}][hours_absent]" value="4" class="hours-input">
+                        <input type="hidden" name="absences[${student.id}][hours_absent]" value="${defaultPeriod.value === 'morning' ? '3' : '4'}" class="hours-input">
                     </div>
                 </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-base sm:text-xl">${index + 1}</td>
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-base sm:text-xl">${student.first_name}</td>
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-base sm:text-xl">${student.last_name}</td>
             `;
@@ -125,12 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     classSelect.addEventListener('change', loadStudents);
     
-    defaultPeriod.addEventListener('change', function() {
-        document.querySelectorAll('.period-input').forEach(input => {
-            input.value = this.value;
-        });
-    });
-
     selectAllCheckbox.addEventListener('change', function() {
         document.querySelectorAll('.student-checkbox').forEach(checkbox => {
             checkbox.checked = this.checked;
@@ -140,6 +136,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('bulkAbsenceForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
+        if (!defaultPeriod.value) {
+            alert('Please select a period.');
+            return;
+        }
+
         const checkedStudents = document.querySelectorAll('.student-checkbox:checked');
         if (checkedStudents.length === 0) {
             alert('Please select at least one student.');

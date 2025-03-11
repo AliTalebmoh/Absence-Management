@@ -9,13 +9,20 @@ use App\Models\Room;
 use App\Models\Subject;
 use App\Models\Schedule;
 use App\Models\ClassRoom;
+use App\Models\Analytics;
 
 class InitialDataSeeder extends Seeder
 {
     public function run(): void
     {
         // Create class
-        $class = ClassRoom::create(['name' => 'E-Commerce']);
+        $class = ClassRoom::create(['name' => 'Commerce']);
+        $class2 = ClassRoom::create(['name' => 'Infographie & Multimédia']);
+        $class3 = ClassRoom::create(['name' => 'Informatique & Développement Web']);
+        $class4 = ClassRoom::create(['name' => 'Energies Renouvelables']);
+        $class5 = ClassRoom::create(['name' => 'Coupe & Couture / Tissage Horizontal']);
+        $class6 = ClassRoom::create(['name' => 'Assistanat Social']);
+        $class7 = ClassRoom::create(['name' => 'Coiffure & Esthétique']);
 
         // Create rooms
         $rooms = [
@@ -90,6 +97,210 @@ class InitialDataSeeder extends Seeder
         foreach ($students as $student) {
             $student['class_id'] = $class->id;
             Student::create($student);
+        }
+
+        // Create students for Infographie & Multimédia
+        $students_multimedia = [
+            ['first_name' => 'Amal', 'last_name' => 'ACHOUCH'],
+            ['first_name' => 'Youssef', 'last_name' => 'BENKHADDA'],
+            ['first_name' => 'Zakaria', 'last_name' => 'CHOUKA'],
+            ['first_name' => 'Amine', 'last_name' => 'DRISSI-MELIANI'],
+            ['first_name' => 'Hajar', 'last_name' => 'EL BOURAGI'],
+            ['first_name' => 'Amine', 'last_name' => 'EL MARNISSI'],
+            ['first_name' => 'Sanae', 'last_name' => 'HDIDOU'],
+            ['first_name' => 'Karim', 'last_name' => 'KARAMA'],
+            ['first_name' => 'Naima', 'last_name' => 'LAAROUSSI'],
+            ['first_name' => 'Adnane', 'last_name' => 'LAATIK'],
+            ['first_name' => 'Mohamed', 'last_name' => 'LAGHRISSI'],
+            ['first_name' => 'Hamad', 'last_name' => 'SHEHAB'],
+            ['first_name' => 'Hamza', 'last_name' => 'SOSSEY'],
+            ['first_name' => 'Haijou', 'last_name' => 'ZAAOUAOUI']
+        ];
+
+        foreach ($students_multimedia as $student) {
+            $student['class_id'] = $class2->id;
+            Student::create($student);
+        }
+
+        // Create students for Informatique & Développement Web
+        $students_dev = [
+            ['first_name' => 'Houssam', 'last_name' => 'AL HYANE'],
+            ['first_name' => 'Fatima', 'last_name' => 'BELLA'],
+            ['first_name' => 'Salah-Eddine', 'last_name' => 'BOURRAY'],
+            ['first_name' => 'Rachida', 'last_name' => 'EL AKHFACH'],
+            ['first_name' => 'Abdelmunaim', 'last_name' => 'EL HAANANI'],
+            ['first_name' => 'Aymane', 'last_name' => 'EL MOUSSAOUI'],
+            ['first_name' => 'Yassir', 'last_name' => 'ESSABBAHY'],
+            ['first_name' => 'Meryem', 'last_name' => 'HASNAOUI'],
+            ['first_name' => 'Fatima-Ezzahrae', 'last_name' => 'HIDA'],
+            ['first_name' => 'Mohamed', 'last_name' => 'HMICHANE'],
+            ['first_name' => 'Asmae', 'last_name' => 'LAMGHARI'],
+            ['first_name' => 'Sanae', 'last_name' => 'LEGNAFDI'],
+            ['first_name' => 'Hasnae', 'last_name' => 'MOUHADANE'],
+            ['first_name' => 'Mohamed Amine', 'last_name' => 'OMARI'],
+            ['first_name' => 'OTMANE', 'last_name' => 'SAAID'],
+            ['first_name' => 'Youness', 'last_name' => 'SEHLI'],
+            ['first_name' => 'Smail', 'last_name' => 'YAZIDI']
+        ];
+
+        foreach ($students_dev as $student) {
+            $student['class_id'] = $class3->id;
+            Student::create($student);
+        }
+
+        // Create students for Energies Renouvelables
+        $students_energies = [
+            ['first_name' => 'Rida', 'last_name' => 'AAJOUL'],
+            ['first_name' => 'Redwane', 'last_name' => 'AIT M\'HAMED'],
+            ['first_name' => 'Said', 'last_name' => 'AMQOR'],
+            ['first_name' => 'Adil', 'last_name' => 'AZEROIL'],
+            ['first_name' => 'Fadwa', 'last_name' => 'AZZOU'],
+            ['first_name' => 'Sanae', 'last_name' => 'AZZOU'],
+            ['first_name' => 'Ismail', 'last_name' => 'BOUHAFRA'],
+            ['first_name' => 'Ibrahim', 'last_name' => 'CHAIBI'],
+            ['first_name' => 'Amine', 'last_name' => 'DERWICH'],
+            ['first_name' => 'Mehdi', 'last_name' => 'ECHOUYKH'],
+            ['first_name' => 'Mohcine', 'last_name' => 'EL OUAZYRY'],
+            ['first_name' => 'Anouar', 'last_name' => 'FAWZI'],
+            ['first_name' => 'Yassine', 'last_name' => 'FEDAILI'],
+            ['first_name' => 'Faouad', 'last_name' => 'GUEROUAT'],
+            ['first_name' => 'Salaheddine', 'last_name' => 'HASSANI'],
+            ['first_name' => 'Youssef', 'last_name' => 'KELLA'],
+            ['first_name' => 'Zakariae', 'last_name' => 'LAMRAOUI'],
+            ['first_name' => 'Ali', 'last_name' => 'LAZAR'],
+            ['first_name' => 'Mohamed Amine', 'last_name' => 'MOUILAOUI'],
+            ['first_name' => 'Mohamed', 'last_name' => 'OUAMRAN'],
+            ['first_name' => 'Yassine', 'last_name' => 'OUBRAHIM'],
+            ['first_name' => 'Saad', 'last_name' => 'OUSGHAB'],
+            ['first_name' => 'Ayman', 'last_name' => 'OUTALEB'],
+            ['first_name' => 'Mohamed', 'last_name' => 'SAMLI'],
+            ['first_name' => 'Achraf', 'last_name' => 'SAYDI']
+        ];
+
+        foreach ($students_energies as $student) {
+            $student['class_id'] = $class4->id;
+            Student::create($student);
+        }
+
+        // Create students for Coupe & Couture / Tissage Horizontal
+        $students_couture = [
+            ['first_name' => 'Mina', 'last_name' => 'ACHBAB'],
+            ['first_name' => 'Nihad', 'last_name' => 'AMIRI'],
+            ['first_name' => 'Aicha', 'last_name' => 'ANEJDAME'],
+            ['first_name' => 'Khadija', 'last_name' => 'BARBACH'],
+            ['first_name' => 'Meryem', 'last_name' => 'BROUROU'],
+            ['first_name' => 'Laila', 'last_name' => 'CHABA'],
+            ['first_name' => 'Meryem', 'last_name' => 'CHADLI'],
+            ['first_name' => 'Khadija', 'last_name' => 'CHAMKH'],
+            ['first_name' => 'Najia', 'last_name' => 'EL ANSARI'],
+            ['first_name' => 'Meryam', 'last_name' => 'EL ASSBOUNI'],
+            ['first_name' => 'Khadija', 'last_name' => 'EL KAMEL'],
+            ['first_name' => 'Aya', 'last_name' => 'EZZAHIR'],
+            ['first_name' => 'Soukaina', 'last_name' => 'JAOUHARI'],
+            ['first_name' => 'Nadia', 'last_name' => 'KADOUSSI'],
+            ['first_name' => 'Nadia', 'last_name' => 'NOUALI'],
+            ['first_name' => 'Sanae', 'last_name' => 'OUBERRI'],
+            ['first_name' => 'Sanae', 'last_name' => 'OUKHCHINE'],
+            ['first_name' => 'Fatima Ez Zahra', 'last_name' => 'REGRAGUI'],
+            ['first_name' => 'Hajar', 'last_name' => 'SEHLI'],
+            ['first_name' => 'Fatima', 'last_name' => 'TOUMI']
+        ];
+
+        foreach ($students_couture as $student) {
+            $student['class_id'] = $class5->id;
+            Student::create($student);
+        }
+
+        // Create students for Assistanat Social
+        $students_social = [
+            ['first_name' => 'Ikrame', 'last_name' => 'AIT LMADANI'],
+            ['first_name' => 'Fatima Zohra', 'last_name' => 'AKHOUTIL'],
+            ['first_name' => 'Sanae', 'last_name' => 'AKKEBAR'],
+            ['first_name' => 'Hajjou', 'last_name' => 'BAASSINE'],
+            ['first_name' => 'Nouhaila', 'last_name' => 'BACHIRI'],
+            ['first_name' => 'Houda', 'last_name' => 'BERZLINE'],
+            ['first_name' => 'Zineb', 'last_name' => 'BOUFALA'],
+            ['first_name' => 'Hajiba', 'last_name' => 'BOURAGAA'],
+            ['first_name' => 'Ouissal', 'last_name' => 'DAMANI'],
+            ['first_name' => 'Assia', 'last_name' => 'EL ABDELLAOUI'],
+            ['first_name' => 'Bouchra', 'last_name' => 'EL BOUAZZAOUI'],
+            ['first_name' => 'Imane', 'last_name' => 'EL BOUZKRAOUI EL ALAOUI'],
+            ['first_name' => 'Nawal', 'last_name' => 'EL-ABBADI'],
+            ['first_name' => 'Chaima', 'last_name' => 'ELHADIOUI'],
+            ['first_name' => 'Nadia', 'last_name' => 'HADDOUCH'],
+            ['first_name' => 'Houria', 'last_name' => 'IBRAHIMI'],
+            ['first_name' => 'Fatima', 'last_name' => 'IRHOUD'],
+            ['first_name' => 'Ilyas', 'last_name' => 'JABOUR'],
+            ['first_name' => 'Charif', 'last_name' => 'LOUHIDI'],
+            ['first_name' => 'Chaimae', 'last_name' => 'MOUFADDAL']
+        ];
+
+        foreach ($students_social as $student) {
+            $student['class_id'] = $class6->id;
+            Student::create($student);
+        }
+
+        // Create students for Coiffure & Esthétique
+        $students_coiffure = [
+            ['first_name' => 'Souad', 'last_name' => 'AIT M\'HAMED'],
+            ['first_name' => 'Salwa', 'last_name' => 'AZOUGAGH'],
+            ['first_name' => 'Hanane', 'last_name' => 'BOULBABE'],
+            ['first_name' => 'Khaoula', 'last_name' => 'BOURASS'],
+            ['first_name' => 'Saida', 'last_name' => 'BOURHAIBA'],
+            ['first_name' => 'Fatima', 'last_name' => 'BOUYACQUB'],
+            ['first_name' => 'Nouahaila', 'last_name' => 'BOUZIANE'],
+            ['first_name' => 'Hanane', 'last_name' => 'EL BADAOUI'],
+            ['first_name' => 'Hassna', 'last_name' => 'EL BADAOUI'],
+            ['first_name' => 'Mouna', 'last_name' => 'EL GHAZI'],
+            ['first_name' => 'Farida', 'last_name' => 'EL KHOUYANI'],
+            ['first_name' => 'Dounia', 'last_name' => 'EL MEKAOUI'],
+            ['first_name' => 'Nisrine', 'last_name' => 'FADILI'],
+            ['first_name' => 'Asmae', 'last_name' => 'HAJJI'],
+            ['first_name' => 'Hiba', 'last_name' => 'IKKOU'],
+            ['first_name' => 'Meriem', 'last_name' => 'KERROUMI'],
+            ['first_name' => 'Hajar', 'last_name' => 'KHALESS'],
+            ['first_name' => 'Khaoula', 'last_name' => 'LAHLIMI'],
+            ['first_name' => 'Aya', 'last_name' => 'LAKDIM'],
+            ['first_name' => 'Bouchra', 'last_name' => 'LAQTIB'],
+            ['first_name' => 'Mounia', 'last_name' => 'OUBEJJA'],
+            ['first_name' => 'Ilham', 'last_name' => 'OUHAMMADI'],
+            ['first_name' => 'Latifa', 'last_name' => 'RAZZOUK'],
+            ['first_name' => 'Aya', 'last_name' => 'SANAA'],
+            ['first_name' => 'Nouhaila', 'last_name' => 'TAHIRI']
+        ];
+
+        foreach ($students_coiffure as $student) {
+            $student['class_id'] = $class7->id;
+            Student::create($student);
+        }
+
+        // Create initial analytics for each class
+        $classes = [$class, $class2, $class3, $class4, $class5, $class6, $class7];
+        foreach ($classes as $class_item) {
+            $total_students = Student::where('class_id', $class_item->id)->count();
+            Analytics::create([
+                'class_id' => $class_item->id,
+                'total_students' => $total_students,
+                'total_absences' => 0,
+                'total_present' => 0,
+                'attendance_rate' => 100,
+                'average_performance' => 0,
+                'monthly_attendance' => json_encode([
+                    'January' => 0,
+                    'February' => 0,
+                    'March' => 0,
+                    'April' => 0,
+                    'May' => 0,
+                    'June' => 0,
+                    'July' => 0,
+                    'August' => 0,
+                    'September' => 0,
+                    'October' => 0,
+                    'November' => 0,
+                    'December' => 0
+                ]),
+                'subject_performance' => json_encode([])
+            ]);
         }
 
         // Create schedules

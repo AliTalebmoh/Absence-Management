@@ -70,6 +70,7 @@ class StudentController extends Controller
 
         $student = Student::create($validated);
         Cache::forget('classes_list');
+        Cache::forget('students_list');
         $this->clearStudentCache($student);
 
         return redirect()->route('students.index')
@@ -109,14 +110,18 @@ class StudentController extends Controller
 
     public function update(Request $request, Student $student)
     {
-        $validated = $request->validate([
+        $validatedData = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'class_id' => 'required|exists:classes,id'
         ]);
 
-        $student->update($validated);
-        $this->clearStudentCache($student);
+        $student->update($validatedData);
+
+        // Clear relevant caches
+        Cache::forget('students_list');
+        Cache::forget('student_' . $student->id);
+        Cache::forget('student_analytics_' . $student->id);
 
         return redirect()->route('students.index')
             ->with('success', 'Student updated successfully.');

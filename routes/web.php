@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\AbsenceController;
+use App\Http\Controllers\AnalyticsController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -33,4 +34,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/absences/bulk-create', [AbsenceController::class, 'bulkCreate'])->name('absences.bulk-create');
     Route::post('/absences/store-bulk', [AbsenceController::class, 'storeBulk'])->name('absences.store-bulk');
     Route::get('/absences/get-class-data', [AbsenceController::class, 'getClassData'])->name('absences.get-class-data');
+    
+    // Analytics routes
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('/analytics/{class}', [AnalyticsController::class, 'show'])->name('analytics.show');
+    Route::put('/analytics/{class}', [AnalyticsController::class, 'updateAnalytics'])->name('analytics.update');
 });

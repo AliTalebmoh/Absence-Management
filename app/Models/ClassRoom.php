@@ -17,4 +17,9 @@ class ClassRoom extends Model
     {
         return $this->hasMany(Student::class, 'class_id');
     }
+
+    public function analytics()
+    {
+        return $this->hasOne(Analytics::class, 'class_id');
+    }
 }

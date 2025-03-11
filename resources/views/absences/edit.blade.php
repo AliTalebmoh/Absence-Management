@@ -27,7 +27,7 @@
                     <label for="period" class="block text-sm font-medium text-gray-700 mb-2">Period</label>
                     <select name="period" id="period" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="morning" {{ $absence->period == 'morning' ? 'selected' : '' }}>Morning (4 hours)</option>
+                        <option value="morning" {{ $absence->period == 'morning' ? 'selected' : '' }}>Morning (3 hours)</option>
                         <option value="afternoon" {{ $absence->period == 'afternoon' ? 'selected' : '' }}>Afternoon (4 hours)</option>
                     </select>
                 </div>

@@ -20,16 +20,20 @@ class Student extends Model
     {
         parent::boot();
 
+        static::created(function ($student) {
+            // Clear the cache when a student is created
+            Cache::forget('students_list');
+        });
+
         static::updated(function ($student) {
-            Cache::forget('student_' . $student->id);
-            Cache::forget('student_analytics_' . $student->id);
-            Cache::tags(['students_list'])->flush();
+            // Clear the cache when a student is updated
+            Cache::forget('students_list');
         });
 
         static::deleted(function ($student) {
             Cache::forget('student_' . $student->id);
             Cache::forget('student_analytics_' . $student->id);
-            Cache::tags(['students_list'])->flush();
+            Cache::forget('students_list');
             Cache::forget('classes_list');
         });
     }

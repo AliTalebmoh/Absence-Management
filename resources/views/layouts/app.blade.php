@@ -42,6 +42,10 @@
                        class="text-sm font-medium transition-colors hover:text-primary {{ request()->routeIs('absences.*') ? 'text-foreground' : 'text-foreground/60' }}">
                         Absences
                     </a>
+                    <a href="{{ route('analytics.index') }}"
+                       class="text-sm font-medium transition-colors hover:text-primary {{ request()->routeIs('analytics.*') ? 'text-foreground' : 'text-foreground/60' }}">
+                        Analytics
+                    </a>
                 </div>
 
                 <div class="flex flex-1 items-center justify-end space-x-4">
