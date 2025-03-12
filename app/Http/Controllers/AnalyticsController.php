@@ -17,20 +17,14 @@ class AnalyticsController extends Controller
 
     public function index()
     {
-        $classes = ClassRoom::all();
-        $statistics = $this->analyticsService->getOverallStatistics();
-        
-        return view('analytics.index', [
-            'classes' => $classes,
-            'statistics' => $statistics,
-            'analyticsService' => $this->analyticsService
-        ]);
+        $stats = $this->analyticsService->getGlobalStatistics();
+        return view('analytics.index', compact('stats'));
     }
 
-    public function show(ClassRoom $class)
+    public function showClass($id)
     {
-        $statistics = $this->analyticsService->getClassStatistics($class->id);
-        return view('analytics.show', compact('class', 'statistics'));
+        $analytics = $this->analyticsService->getDetailedClassAnalytics($id);
+        return view('analytics.class', compact('analytics'));
     }
 
     public function updateAnalytics($id)

@@ -31,7 +31,7 @@
 
                 <div>
                     <label for="defaultPeriod" class="block text-base font-medium text-gray-700 mb-2">Period</label>
-                    <select id="defaultPeriod" class="w-full px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    <select id="defaultPeriod" name="period" class="w-full px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
                         <option value="">Select a period</option>
                         <option value="morning">Morning (3 hours)</option>
                         <option value="afternoon">Afternoon (4 hours)</option>
@@ -82,6 +82,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const studentList = document.getElementById('studentList');
     const defaultPeriod = document.getElementById('defaultPeriod');
 
+    function updatePeriodInputs() {
+        const period = defaultPeriod.value;
+        const hours = period === 'morning' ? '3' : '4';
+        document.querySelectorAll('.period-input').forEach(input => {
+            input.value = period;
+        });
+        document.querySelectorAll('.hours-input').forEach(input => {
+            input.value = hours;
+        });
+    }
+
+    function updateStudentList(students) {
+        const tbody = document.getElementById('studentTableBody');
+        tbody.innerHTML = '';
+
+        students.forEach((student, index) => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50';
+            tr.innerHTML = `
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="absences[${student.id}][student_id]" value="${student.id}"
+                            class="student-checkbox w-6 h-6 sm:w-8 sm:h-8 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                    </div>
+                </td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-base sm:text-xl">${index + 1}</td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-base sm:text-xl">${student.first_name}</td>
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-base sm:text-xl">${student.last_name}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
     function loadStudents() {
         const classId = classSelect.value;
         if (!classId) {
@@ -101,32 +134,14 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    function updateStudentList(students) {
-        const tbody = document.getElementById('studentTableBody');
-        tbody.innerHTML = '';
-
-        students.forEach((student, index) => {
-            const tr = document.createElement('tr');
-            tr.className = 'hover:bg-gray-50';
-            tr.innerHTML = `
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                        <input type="checkbox" name="absences[${student.id}][student_id]" value="${student.id}"
-                            class="student-checkbox w-6 h-6 sm:w-8 sm:h-8 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
-                        <input type="hidden" name="absences[${student.id}][period]" value="${defaultPeriod.value}" class="period-input">
-                        <input type="hidden" name="absences[${student.id}][hours_absent]" value="${defaultPeriod.value === 'morning' ? '3' : '4'}" class="hours-input">
-                    </div>
-                </td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-base sm:text-xl">${index + 1}</td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-base sm:text-xl">${student.first_name}</td>
-                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-base sm:text-xl">${student.last_name}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
     classSelect.addEventListener('change', loadStudents);
     
+    defaultPeriod.addEventListener('change', function() {
+        if (document.getElementById('studentTableBody').children.length > 0) {
+            updatePeriodInputs();
+        }
+    });
+
     selectAllCheckbox.addEventListener('change', function() {
         document.querySelectorAll('.student-checkbox').forEach(checkbox => {
             checkbox.checked = this.checked;
@@ -146,6 +161,23 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Please select at least one student.');
             return;
         }
+
+        // Add period and hours to each selected student
+        checkedStudents.forEach(checkbox => {
+            const studentId = checkbox.value;
+            const periodInput = document.createElement('input');
+            periodInput.type = 'hidden';
+            periodInput.name = `absences[${studentId}][period]`;
+            periodInput.value = defaultPeriod.value;
+            
+            const hoursInput = document.createElement('input');
+            hoursInput.type = 'hidden';
+            hoursInput.name = `absences[${studentId}][hours_absent]`;
+            hoursInput.value = defaultPeriod.value === 'morning' ? '3' : '4';
+            
+            checkbox.parentNode.appendChild(periodInput);
+            checkbox.parentNode.appendChild(hoursInput);
+        });
 
         this.submit();
     });
