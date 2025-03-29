@@ -17,7 +17,7 @@
             <div class="flex justify-between items-end">
                 <div>
                     <p class="text-3xl font-bold text-indigo-600">
-                        {{ $analytics['class']['total_students'] - $analytics['class']['today_absences'] }}
+                        {{ $analytics['class']['total_students'] - $analytics['class']['today_absences'] - $analytics['class']['today_justified_absences'] }}
                     </p>
                     <p class="text-sm text-gray-500">Present</p>
                 </div>
@@ -25,12 +25,21 @@
                     <p class="text-3xl font-bold text-red-600">{{ $analytics['class']['today_absences'] }}</p>
                     <p class="text-sm text-gray-500">Absent</p>
                 </div>
+                <div>
+                    <p class="text-3xl font-bold text-yellow-600">{{ $analytics['class']['today_justified_absences'] ?? 0 }}</p>
+                    <p class="text-sm text-gray-500">Justified</p>
+                </div>
             </div>
         </div>
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-medium text-gray-900 mb-2">Total Absences</h3>
             <p class="text-3xl font-bold text-red-600">{{ $analytics['class']['total_absences'] }}</p>
-            <p class="text-sm text-gray-500">All Time</p>
+            <p class="text-sm text-gray-500">Unjustified (All Time)</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Total Justified</h3>
+            <p class="text-3xl font-bold text-yellow-600">{{ $analytics['class']['total_justified_absences'] ?? 0 }}</p>
+            <p class="text-sm text-gray-500">Justified (All Time)</p>
         </div>
     </div>
 
@@ -50,9 +59,11 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Absences</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unjustified Absences</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Justified Absences</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recent Absences</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Hours</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unjustified Hours</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Justified Hours</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -61,8 +72,10 @@
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $student['name'] }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student['total_absences'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student['total_justified_absences'] ?? 0 }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student['recent_absences'] }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student['total_hours'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student['justified_hours'] ?? 0 }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             <a href="{{ route('students.analytics', $student['id']) }}" 
                                class="text-indigo-600 hover:text-indigo-900">View Analytics</a>
@@ -85,13 +98,22 @@ document.addEventListener('DOMContentLoaded', function() {
         type: 'bar',
         data: {
             labels: monthlyData.map(item => item.month),
-            datasets: [{
-                label: 'Total Absences',
-                data: monthlyData.map(item => item.total_absences),
-                backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                borderColor: 'rgba(239, 68, 68, 1)',
-                borderWidth: 1
-            }]
+            datasets: [
+                {
+                    label: 'Unjustified Absences',
+                    data: monthlyData.map(item => item.total_absences),
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Justified Absences',
+                    data: monthlyData.map(item => item.total_justified_absences ?? 0),
+                    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                    borderColor: 'rgba(245, 158, 11, 1)',
+                    borderWidth: 1
+                }
+            ]
         },
         options: {
             responsive: true,

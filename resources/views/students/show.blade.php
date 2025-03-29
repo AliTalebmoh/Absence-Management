@@ -24,8 +24,24 @@
                 </div>
             </div>
 
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium text-red-800">Unjustified Absences</h3>
+                    <p class="text-2xl font-bold text-red-700">{{ $absences->where('justified', false)->count() }} times</p>
+                    <p class="text-md text-red-600">{{ $absences->where('justified', false)->sum('hours_absent') }} hours</p>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium text-yellow-800">Justified Absences</h3>
+                    <p class="text-2xl font-bold text-yellow-700">{{ $absences->where('justified', true)->count() }} times</p>
+                    <p class="text-md text-yellow-600">{{ $absences->where('justified', true)->sum('hours_absent') }} hours</p>
+                </div>
+            </div>
+
             <div class="mt-6">
-                <h2 class="text-xl font-semibold mb-4">Recent Absences</h2>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Recent Absences</h2>
+                    <a href="{{ route('students.analytics', $student) }}" class="text-indigo-600 hover:text-indigo-900">Full Analytics</a>
+                </div>
                 @if($absences->count() > 0)
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -34,6 +50,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Period</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Justified</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -43,6 +60,13 @@
                                 <td class="px-6 py-4 whitespace-nowrap">{{ $absence->date->format('M d, Y') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ ucfirst($absence->period) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ $absence->hours_absent }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($absence->justified)
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                                    @else
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">No</span>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     <a href="{{ route('absences.edit', $absence) }}" class="text-yellow-600 hover:text-yellow-900 mr-3">Edit</a>
                                     <form action="{{ route('absences.destroy', $absence) }}" method="POST" class="inline">

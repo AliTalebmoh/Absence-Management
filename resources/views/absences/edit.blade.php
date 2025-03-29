@@ -38,6 +38,16 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                         min="0.5" max="8" step="0.5" value="{{ $absence->hours_absent }}">
                 </div>
+                
+                <div class="md:col-span-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="justified" id="justified" {{ $absence->justified ? 'checked' : '' }}
+                            class="h-5 w-5 rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <label for="justified" class="ml-2 block text-sm font-medium text-gray-700">
+                            Justified Absence (hours will not count toward total absences)
+                        </label>
+                    </div>
+                </div>
             </div>
 
             <div class="flex justify-end">

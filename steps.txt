@@ -1,0 +1,7 @@
+php artisan migrate
+php artisan make:seeder UpdateAnalyticsForJustifiedAbsencesSeeder
+php artisan db:seed --class=UpdateAnalyticsForJustifiedAbsencesSeeder
+php artisan cache:clear
+php artisan view:clear
+php artisan route:clear
+php artisan config:clear

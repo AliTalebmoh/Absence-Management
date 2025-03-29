@@ -13,12 +13,14 @@ class Absence extends Model
         'student_id',
         'date',
         'period',
-        'hours_absent'
+        'hours_absent',
+        'justified'
     ];
 
     protected $casts = [
         'date' => 'date',
-        'hours_absent' => 'decimal:1'
+        'hours_absent' => 'decimal:1',
+        'justified' => 'boolean'
     ];
 
     public function student()

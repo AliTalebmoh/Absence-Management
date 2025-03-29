@@ -7,7 +7,7 @@
     </div>
 
     <!-- Global Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-medium text-gray-900 mb-2">Total Students</h3>
             <p class="text-3xl font-bold text-indigo-600">{{ $stats['total_students'] }}</p>
@@ -21,12 +21,27 @@
             <p class="text-3xl font-bold text-red-600">{{ $stats['today_absences'] }}</p>
         </div>
         <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Today's Justified</h3>
+            <p class="text-3xl font-bold text-yellow-600">{{ $stats['today_justified_absences'] ?? 0 }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-medium text-gray-900 mb-2">Monthly Absences</h3>
             <p class="text-3xl font-bold text-red-600">{{ $stats['monthly_absences'] }}</p>
         </div>
         <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Total Absences</h3>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Monthly Justified</h3>
+            <p class="text-3xl font-bold text-yellow-600">{{ $stats['monthly_justified_absences'] ?? 0 }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Total Unjustified Absences</h3>
             <p class="text-3xl font-bold text-red-600">{{ $stats['total_absences'] }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Total Justified Absences</h3>
+            <p class="text-3xl font-bold text-yellow-600">{{ $stats['total_justified_absences'] ?? 0 }}</p>
         </div>
     </div>
 
@@ -43,6 +58,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Students</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Present Today</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Absent Today</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Justified Today</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attendance Rate</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -54,6 +70,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $class['total_students'] }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $class['present_today'] }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $class['absent_today'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $class['justified_today'] ?? 0 }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">

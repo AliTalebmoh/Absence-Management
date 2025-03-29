@@ -13,13 +13,23 @@ class AnalyticsService
     public function getOverallStatistics()
     {
         $totalStudents = Student::count();
-        $totalAbsences = Absence::whereDate('date', Carbon::today())->count();
+        
+        // Count only unjustified absences for total absences
+        $totalAbsences = Absence::whereDate('date', Carbon::today())
+            ->where('justified', false)
+            ->count();
+            
+        // Count justified absences separately
+        $totalJustifiedAbsences = Absence::whereDate('date', Carbon::today())
+            ->where('justified', true)
+            ->count();
 
         return [
             'total_classes' => ClassRoom::count(),
             'total_students' => $totalStudents,
-            'total_present' => $totalStudents - $totalAbsences,
+            'total_present' => $totalStudents - $totalAbsences - $totalJustifiedAbsences,
             'total_absences' => $totalAbsences,
+            'total_justified_absences' => $totalJustifiedAbsences,
             'attendance_rate' => $this->calculateAttendanceRate($totalStudents, $totalAbsences),
             'monthly_trends' => $this->getMonthlyTrends()
         ];
@@ -30,15 +40,24 @@ class AnalyticsService
         // Get total students in class
         $totalStudents = Student::where('class_id', $classId)->count();
         
-        // Get today's absences for this class
+        // Get today's unjustified absences for this class
         $todayAbsences = Absence::whereHas('student', function($query) use ($classId) {
                 $query->where('class_id', $classId);
             })
             ->whereDate('date', Carbon::today())
+            ->where('justified', false)
+            ->count();
+            
+        // Get today's justified absences for this class
+        $todayJustifiedAbsences = Absence::whereHas('student', function($query) use ($classId) {
+                $query->where('class_id', $classId);
+            })
+            ->whereDate('date', Carbon::today())
+            ->where('justified', true)
             ->count();
         
         // Calculate today's attendance
-        $todayPresent = $totalStudents - $todayAbsences;
+        $todayPresent = $totalStudents - $todayAbsences - $todayJustifiedAbsences;
         
         // Get monthly attendance data
         $monthlyAttendance = $this->getMonthlyAttendanceForClass($classId);
@@ -47,6 +66,7 @@ class AnalyticsService
             'total_students' => $totalStudents,
             'total_present' => $todayPresent,
             'total_absences' => $todayAbsences,
+            'total_justified_absences' => $todayJustifiedAbsences,
             'attendance_rate' => $this->calculateAttendanceRate($totalStudents, $todayAbsences),
             'monthly_attendance' => $monthlyAttendance
         ];
@@ -73,10 +93,17 @@ class AnalyticsService
             $endOfMonth = $date->copy()->endOfMonth();
             
             $totalStudents = Student::count();
-            $absences = Absence::whereBetween('date', [$startOfMonth, $endOfMonth])->count();
+            $absences = Absence::whereBetween('date', [$startOfMonth, $endOfMonth])
+                ->where('justified', false)
+                ->count();
+                
+            $justifiedAbsences = Absence::whereBetween('date', [$startOfMonth, $endOfMonth])
+                ->where('justified', true)
+                ->count();
             
             $months->put($date->format('F'), [
                 'absences' => $absences,
+                'justified_absences' => $justifiedAbsences,
                 'attendance_rate' => $this->calculateAttendanceRate($totalStudents, $absences)
             ]);
         }
@@ -94,14 +121,26 @@ class AnalyticsService
             $startOfMonth = $date->copy()->startOfMonth();
             $endOfMonth = $date->copy()->endOfMonth();
             
-            // Get absences for this month
+            // Get unjustified absences for this month
             $absences = Absence::whereHas('student', function($query) use ($classId) {
                     $query->where('class_id', $classId);
                 })
+                ->where('justified', false)
                 ->whereBetween('date', [$startOfMonth, $endOfMonth])
                 ->count();
             
-            $months->put($date->format('F'), $absences);
+            // Get justified absences for this month
+            $justifiedAbsences = Absence::whereHas('student', function($query) use ($classId) {
+                    $query->where('class_id', $classId);
+                })
+                ->where('justified', true)
+                ->whereBetween('date', [$startOfMonth, $endOfMonth])
+                ->count();
+                
+            $months->put($date->format('F'), [
+                'absences' => $absences,
+                'justified_absences' => $justifiedAbsences
+            ]);
         }
         
         return $months->toJson();
@@ -114,21 +153,40 @@ class AnalyticsService
         
         // Get today's absences
         $today = Carbon::today();
-        $todayAbsences = Absence::whereDate('date', $today)->count();
+        $todayAbsences = Absence::whereDate('date', $today)
+            ->where('justified', false)
+            ->count();
+            
+        $todayJustifiedAbsences = Absence::whereDate('date', $today)
+            ->where('justified', true)
+            ->count();
         
         // Get total absences for the current month
         $currentMonth = Carbon::now()->startOfMonth();
         $monthlyAbsences = Absence::whereMonth('date', $currentMonth->month)
             ->whereYear('date', $currentMonth->year)
+            ->where('justified', false)
+            ->count();
+            
+        $monthlyJustifiedAbsences = Absence::whereMonth('date', $currentMonth->month)
+            ->whereYear('date', $currentMonth->year)
+            ->where('justified', true)
             ->count();
 
         // Get total absences (all time)
-        $totalAbsences = Absence::count();
+        $totalAbsences = Absence::where('justified', false)->count();
+        $totalJustifiedAbsences = Absence::where('justified', true)->count();
 
         // Get class-wise statistics
         $classStats = ClassRoom::withCount(['students', 'students as absent_today' => function($query) use ($today) {
             $query->whereHas('absences', function($q) use ($today) {
-                $q->whereDate('date', $today);
+                $q->whereDate('date', $today)
+                  ->where('justified', false);
+            });
+        }, 'students as justified_today' => function($query) use ($today) {
+            $query->whereHas('absences', function($q) use ($today) {
+                $q->whereDate('date', $today)
+                  ->where('justified', true);
             });
         }])
         ->get()
@@ -142,7 +200,8 @@ class AnalyticsService
                 'name' => $class->name,
                 'total_students' => $class->students_count,
                 'absent_today' => $class->absent_today,
-                'present_today' => $class->students_count - $class->absent_today,
+                'justified_today' => $class->justified_today,
+                'present_today' => $class->students_count - $class->absent_today - $class->justified_today,
                 'attendance_rate' => round($attendanceRate, 1)
             ];
         });
@@ -151,8 +210,11 @@ class AnalyticsService
             'total_students' => $totalStudents,
             'total_classes' => $totalClasses,
             'today_absences' => $todayAbsences,
+            'today_justified_absences' => $todayJustifiedAbsences,
             'monthly_absences' => $monthlyAbsences,
+            'monthly_justified_absences' => $monthlyJustifiedAbsences,
             'total_absences' => $totalAbsences,
+            'total_justified_absences' => $totalJustifiedAbsences,
             'class_statistics' => $classStats
         ];
     }
@@ -166,9 +228,21 @@ class AnalyticsService
         $monthlyStats = collect();
         for ($i = 5; $i >= 0; $i--) {
             $month = Carbon::now()->subMonths($i);
+            
+            // Count regular absences
             $absences = Absence::whereHas('student', function($query) use ($classId) {
                 $query->where('class_id', $classId);
             })
+            ->where('justified', false)
+            ->whereMonth('date', $month->month)
+            ->whereYear('date', $month->year)
+            ->count();
+            
+            // Count justified absences
+            $justifiedAbsences = Absence::whereHas('student', function($query) use ($classId) {
+                $query->where('class_id', $classId);
+            })
+            ->where('justified', true)
             ->whereMonth('date', $month->month)
             ->whereYear('date', $month->year)
             ->count();
@@ -180,6 +254,7 @@ class AnalyticsService
             $monthlyStats->push([
                 'month' => $month->format('F Y'),
                 'total_absences' => $absences,
+                'total_justified_absences' => $justifiedAbsences,
                 'total_students' => $totalStudents,
                 'average_absences' => $totalStudents > 0 ? round($absences / $totalStudents, 1) : 0
             ]);
@@ -187,10 +262,24 @@ class AnalyticsService
 
         // Get student-wise statistics
         $studentStats = Student::where('class_id', $classId)
-            ->withCount(['absences as total_absences', 'absences as recent_absences' => function($query) {
-                $query->whereMonth('date', Carbon::now()->month);
-            }])
-            ->withSum('absences as total_hours', 'hours_absent')
+            ->withCount([
+                'absences as total_absences' => function($query) {
+                    $query->where('justified', false);
+                }, 
+                'absences as total_justified_absences' => function($query) {
+                    $query->where('justified', true);
+                },
+                'absences as recent_absences' => function($query) {
+                    $query->whereMonth('date', Carbon::now()->month)
+                          ->where('justified', false);
+                }
+            ])
+            ->withSum(['absences as total_hours' => function($query) {
+                $query->where('justified', false);
+            }], 'hours_absent')
+            ->withSum(['absences as justified_hours' => function($query) {
+                $query->where('justified', true);
+            }], 'hours_absent')
             ->orderBy('total_absences', 'desc')  // Order by most absences first
             ->get()
             ->map(function($student) {
@@ -198,8 +287,10 @@ class AnalyticsService
                     'id' => $student->id,
                     'name' => $student->first_name . ' ' . $student->last_name,
                     'total_absences' => $student->total_absences,
+                    'total_justified_absences' => $student->total_justified_absences,
                     'recent_absences' => $student->recent_absences,
-                    'total_hours' => round($student->total_hours ?? 0, 1)
+                    'total_hours' => round($student->total_hours ?? 0, 1),
+                    'justified_hours' => round($student->justified_hours ?? 0, 1)
                 ];
             });
 
@@ -209,8 +300,8 @@ class AnalyticsService
         })
         ->whereMonth('date', Carbon::now()->month)
         ->whereYear('date', Carbon::now()->year)
-        ->select(DB::raw('DATE(date) as date'), DB::raw('count(*) as total'))
-        ->groupBy('date')
+        ->select(DB::raw('DATE(date) as date'), DB::raw('justified'), DB::raw('count(*) as total'))
+        ->groupBy('date', 'justified')
         ->orderBy('date')
         ->get();
 
@@ -220,11 +311,20 @@ class AnalyticsService
                 'total_students' => $class->students()->count(),
                 'today_absences' => $class->students()
                     ->whereHas('absences', function($query) use ($today) {
-                        $query->whereDate('date', $today);
+                        $query->whereDate('date', $today)
+                              ->where('justified', false);
+                    })->count(),
+                'today_justified_absences' => $class->students()
+                    ->whereHas('absences', function($query) use ($today) {
+                        $query->whereDate('date', $today)
+                              ->where('justified', true);
                     })->count(),
                 'total_absences' => Absence::whereHas('student', function($query) use ($classId) {
                     $query->where('class_id', $classId);
-                })->count()
+                })->where('justified', false)->count(),
+                'total_justified_absences' => Absence::whereHas('student', function($query) use ($classId) {
+                    $query->where('class_id', $classId);
+                })->where('justified', true)->count()
             ],
             'monthly_statistics' => $monthlyStats,
             'student_statistics' => $studentStats,

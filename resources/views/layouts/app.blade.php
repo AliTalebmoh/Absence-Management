@@ -20,7 +20,7 @@
             <div class="container flex h-14 items-center">
                 <div class="mr-4 flex">
                     <a href="{{ route('dashboard') }}" class="mr-6 flex items-center space-x-2">
-                        <span class="font-bold">{{ config('app.name', 'Absence Management') }}</span>
+                        <img src="{{ asset('logo.png') }}" alt="{{ config('app.name', 'Absence Management') }}" class="h-8 w-auto" />
                     </a>
                 </div>
 

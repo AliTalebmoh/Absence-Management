@@ -13,6 +13,7 @@ class Analytics extends Model
         'class_id',
         'total_students',
         'total_absences',
+        'total_justified_absences',
         'total_present',
         'attendance_rate',
         'average_performance',

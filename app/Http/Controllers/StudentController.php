@@ -91,11 +91,15 @@ class StudentController extends Controller
                 });
             
             $totalHours = $absences->sum('hours_absent');
+            $unjustifiedHours = $absences->where('justified', false)->sum('hours_absent');
+            $justifiedHours = $absences->where('justified', true)->sum('hours_absent');
             
             return [
                 'student' => $student,
                 'absences' => $absences,
-                'totalHours' => $totalHours
+                'totalHours' => $totalHours,
+                'unjustifiedHours' => $unjustifiedHours,
+                'justifiedHours' => $justifiedHours
             ];
         });
         
@@ -146,7 +150,8 @@ class StudentController extends Controller
                 ->select(
                     'absences.*',
                     DB::raw('MONTH(date) as month'),
-                    DB::raw('YEAR(date) as year')
+                    DB::raw('YEAR(date) as year'),
+                    'justified'
                 )
                 ->orderBy('date')
                 ->get()

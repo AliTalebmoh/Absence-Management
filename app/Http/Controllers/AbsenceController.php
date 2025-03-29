@@ -103,10 +103,20 @@ class AbsenceController extends Controller
     {
         $validated = $request->validate([
             'period' => 'required|in:morning,afternoon',
-            'hours_absent' => 'required|numeric|min:0.5|max:8'
+            'hours_absent' => 'required|numeric|min:0.5|max:8',
         ]);
 
+        // Handle the justified checkbox separately
+        // Checkboxes only send values when checked
+        $validated['justified'] = $request->has('justified');
+
         $absence->update($validated);
+
+        // Clear any cached data
+        if ($absence->student) {
+            \Illuminate\Support\Facades\Cache::forget('student_' . $absence->student->id);
+            \Illuminate\Support\Facades\Cache::forget('student_analytics_' . $absence->student->id);
+        }
 
         return redirect()->route('absences.index')
             ->with('success', 'Absence updated successfully.');
